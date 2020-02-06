@@ -1,5 +1,5 @@
 # OpCon EASE Connector Scripts
-Project description
+These script connect to the OpCon API within EASE's environment to launch and monitor the specified Jobs. Only authorized users can connect and only the specified Jobs can be run.
 
 # Disclaimer
 No Support and No Warranty are provided by SMA Technologies for this project and related material. The use of this project's files is on your own risk.
@@ -7,10 +7,10 @@ No Support and No Warranty are provided by SMA Technologies for this project and
 SMA Technologies assumes no liability for damage caused by the usage of any of the files offered here via this Github repository.
 
 # Prerequisites
-
+Please work with the EASE team for the OpCon API URL and user credentials.
 
 # Instructions
-
+The OpCon EASE Connector.pdf contains full documentation for each script.
 
 # License
 Copyright 2019 SMA Technologies
