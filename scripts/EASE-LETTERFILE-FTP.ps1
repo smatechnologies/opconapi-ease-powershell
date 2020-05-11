@@ -23,6 +23,13 @@ $instancePropertyName = "SRCFILE"
 $instancePropertyName2 = "OUTFILE"
 $instancePropertyName3 = "EMAIL"
 $reason = "EASE Agent"
+$tls = "Tls12"
+
+#------------------------------------------------
+# Specify the TLS Version
+#------------------------------------------------
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::$tls
 
 #------------------------------------------------
 # Ignores Self Signed certificates across domains
