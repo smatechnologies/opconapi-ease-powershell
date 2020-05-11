@@ -20,6 +20,13 @@ $instancePropertyName = "JOBNAME"
 $instancePropertyName2 = "PROMPT"
 $instancePropertyName3 = "RESPONSE"
 $reason = "EASE Agent"
+$tls = "Tls12"
+
+#------------------------------------------------
+# Specify the TLS Version
+#------------------------------------------------
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::$tls
 
 #------------------------------------------------
 # Ignores Self Signed certificates across domains
