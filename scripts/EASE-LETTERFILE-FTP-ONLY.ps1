@@ -9,8 +9,8 @@ param(
 #------------------------------------------------
 # Dynamic Parameter
 #------------------------------------------------ 
-    [string]$SourceFile,
-	[string]$DestinationFile
+	[string]$DestinationFile,
+	[string]$Email
 )
 #---------------------------------------------------------
 # Verify Static Parameters were submitted in the command
@@ -44,26 +44,26 @@ if(!($ScheduleName))
 #---------------------------------------------------------
 # Verify Dynamic Parameters were submitted in the command
 #---------------------------------------------------------
-if(!($SourceFile))
-    { 
-        Write-Host "A required parameter is missing."  
-		Write-Host "You must include the -SourceFile parameter for this script to work."
-        Exit 610 
-    }
-	
 if(!($DestinationFile))
     { 
         Write-Host "A required parameter is missing."  
 		Write-Host "You must include the -DestinationFile parameter for this script to work."
+        Exit 610 
+    }
+	
+if(!($Email))
+    { 
+        Write-Host "A required parameter is missing."  
+		Write-Host "You must include the -Email parameter for this script to work."
         Exit 610
     }
 #---------------------------------------------------------
 # Define Variables
 #---------------------------------------------------------
-$easeRSJJobName = "RENAME-LTRFILE-IN"
+$easeFTPJobName = "RUN-FTP-OUT"
 $frequency = "OnRequest"
-$instancePropertyName = "SRCFILE"
-$instancePropertyName2 = "OUTFILE"
+$instancePropertyName = "OUTFILE"
+$instancePropertyName2 = "EMAIL"
 $reason = "EASE Agent"
 $tls = "Tls12"
 
@@ -181,10 +181,10 @@ Write-Host ("Fetched schedule id from name: " + $id)
 #------------
 # Add the job
 #------------
-Write-Host ("Attempting to add the job '" + $easeRSJJobName + "' to schedule '" + $id + "'.")
+Write-Host ("Attempting to add the job '" + $easeFTPJobName + "' to schedule '" + $id + "'.")
 
 $addJobUri = ($EaseApiUrl + "/api/scheduleActions")
-$addJobJson = "{`"action`": `"addJobs`", `"scheduleActionItems`": [{`"id`": `"" + $id + "`", `"jobs`": [{`"id`": `"" + $easeRSJJobName + "`", `"instanceProperties`": [{ `"name`": `"" + $instancePropertyName + "`", `"value`": `"" + $SourceFile + "`" }],`"instanceProperties`": [{ `"name`": `"" + $instancePropertyName2 + "`", `"value`": `"" + $DestinationFile + "`" }], `"frequency`": `"" + $Frequency + "`"}]}], `"reason`": `"" + $Reason + "`"}"
+$addJobJson = "{`"action`": `"addJobs`", `"scheduleActionItems`": [{`"id`": `"" + $id + "`", `"jobs`": [{`"id`": `"" + $easeFTPJobName + "`", `"instanceProperties`": [{ `"name`": `"" + $instancePropertyName + "`", `"value`": `"" + $DestinationFile + "`" }], `"instanceProperties`": [{ `"name`": `"" + $instancePropertyName2 + "`", `"value`": `"" + $Email + "`" }], `"frequency`": `"" + $Frequency + "`"}]}], `"reason`": `"" + $Reason + "`"}"
 try
 {
     $scheduleAction = Invoke-RestMethod -Method Post -Uri $addJobUri -Headers $authHeader -Body $addJobJson -ContentType "application/json" -ErrorVariable RespErr
@@ -243,7 +243,7 @@ Write-Host ""
 #-------------------------------------------------------------------------
 # Successfully added job. Now fetch the final result of the job execution.
 #-------------------------------------------------------------------------
-Write-Host ("Successfully added job '" + $easeRSJJobName + "' to schedule '" + $id + "'.")
+Write-Host ("Successfully added job '" + $easeFTPJobName + "' to schedule '" + $id + "'.")
 Write-Host ("Waiting until the job finishes running...")
 
 $dailyJobsUri = ($EaseApiUrl + "/api/dailyJobs?ids=" + $scheduleAction.scheduleActionItems[0].jobs[0].id)
@@ -275,7 +275,7 @@ While (($dailyJob.status.id -ne 900) -and ($dailyJob.status.id -ne 910))
 #-------
 if ($dailyJob.status.id -eq 910)
 {
-    Write-Host ("Job '" + $easeRSJJobName + "' failed: " + $dailyJob.terminationDescription)
+    Write-Host ("Job '" + $easeFTPJobName + "' failed: " + $dailyJob.terminationDescription)
 	$errorCodeDefinition = $dailyJob.terminationDescription
 	$errorCodeDefinition = $errorCodeDefinition.SubString(1,9)
     Exit $errorCodeDefinition

@@ -11,7 +11,47 @@
 #------------------------------------------------ 
     [string]$FileMonitor
 )
+#---------------------------------------------------------
+# Verify Static Parameters were submitted in the command
+#---------------------------------------------------------
+if(!($EaseApiUrl))
+    { 
+        Write-Host "A required parameter is missing."  
+	    Write-Host "You must include the -EaseApiUrl parameter for this script to work."
+        Exit 610 
+    }
+	
+if(!($EaseUser))
+    { 
+        Write-Host "A required parameter is missing."  
+        Write-Host "You must include the -EaseUser parameter for this script to work."
+        Exit 610
+    }
+if(!($EasePassword))
+    { 
+        Write-Host "A required parameter is missing."  
+	    Write-Host "You must include the -EasePassword parameter for this script to work."
+        Exit 610 
+    }
+if(!($ScheduleName))
+    { 
+        Write-Host "A required parameter is missing."  
+        Write-Host "You must include the -ScheduleName parameter for this script to work."
+        Exit 610 
+    }
 
+#---------------------------------------------------------
+# Verify Dynamic Parameters were submitted in the command
+#---------------------------------------------------------
+if(!($FileMonitor))
+    { 
+        Write-Host "A required parameter is missing."  
+	    Write-Host "You must include the -FileMonitor parameter for this script to work."
+        Exit 610 
+    }
+#---------------------------------------------------------
+# Define Variables
+#---------------------------------------------------------
 $easeMONITORJobName = "MONITOR"
 $frequency = "OnRequest"
 $instancePropertyName = "FILE"

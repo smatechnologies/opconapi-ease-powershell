@@ -1,4 +1,4 @@
-param(
+﻿param(
 #------------------------------------------------
 # Static Parameters
 #------------------------------------------------
@@ -7,10 +7,9 @@ param(
     [string]$EasePassword, 
     [string]$ScheduleName,
 #------------------------------------------------
-# Dynamic Parameter
-#------------------------------------------------ 
-    [string]$SourceFile,
-	[string]$DestinationFile
+# Dynamic Parameters
+#------------------------------------------------
+    [string]$ReportName
 )
 #---------------------------------------------------------
 # Verify Static Parameters were submitted in the command
@@ -21,7 +20,6 @@ if(!($EaseApiUrl))
 		Write-Host "You must include the -EaseApiUrl parameter for this script to work."
         Exit 610 
     }
-	
 if(!($EaseUser))
     { 
         Write-Host "A required parameter is missing."  
@@ -30,8 +28,8 @@ if(!($EaseUser))
     }
 if(!($EasePassword))
     { 
-        Write-Host "A required parameter is missing."  
-		Write-Host "You must include the -EasePassword parameter for this script to work."
+         Write-Host "A required parameter is missing."  
+		 Write-Host "You must include the -EasePassword parameter for this script to work."
         Exit 610 
     }
 if(!($ScheduleName))
@@ -40,31 +38,24 @@ if(!($ScheduleName))
         Write-Host "You must include the -ScheduleName parameter for this script to work."
         Exit 610 
     }
-
 #---------------------------------------------------------
 # Verify Dynamic Parameters were submitted in the command
 #---------------------------------------------------------
-if(!($SourceFile))
+if(!($ReportName))
     { 
         Write-Host "A required parameter is missing."  
-		Write-Host "You must include the -SourceFile parameter for this script to work."
+        Write-Host "You must include the -ReportName parameter for this script to work."
         Exit 610 
-    }
-	
-if(!($DestinationFile))
-    { 
-        Write-Host "A required parameter is missing."  
-		Write-Host "You must include the -DestinationFile parameter for this script to work."
-        Exit 610
     }
 #---------------------------------------------------------
 # Define Variables
 #---------------------------------------------------------
-$easeRSJJobName = "RENAME-LTRFILE-IN"
+$easeSEQJobName = "SEQ"
+$easeCOPYJobName = "COPY-RPT-OUT"
+$easeFTPJobName = "RUN-FTP-OUT"
 $frequency = "OnRequest"
-$instancePropertyName = "SRCFILE"
-$instancePropertyName2 = "OUTFILE"
-$reason = "EASE Agent"
+$instancePropertyName = "OUTFILE"
+reason = "EASE Agent"
 $tls = "Tls12"
 
 #------------------------------------------------
@@ -149,7 +140,7 @@ catch
     Write-Host ("Unable to fetch daily schedule. URI: " + $dailySchedulesUri)
     Write-Host ("StatusCode: " + $_.Exception.Response.StatusCode.value__)
     Write-Host ("StatusDescription: " + $_.Exception.Response.StatusDescription)
-    Exit $_.Exception.Response.StatusCode.value__
+    exit $_.Exception.Response.StatusCode.value__
 }
 
 if ($dailySchedules.Count -eq 0)
@@ -181,10 +172,10 @@ Write-Host ("Fetched schedule id from name: " + $id)
 #------------
 # Add the job
 #------------
-Write-Host ("Attempting to add the job '" + $easeRSJJobName + "' to schedule '" + $id + "'.")
+Write-Host ("Attempting to add the job '" + $easeCOPYJobName + "' to schedule '" + $id + "'.")
 
 $addJobUri = ($EaseApiUrl + "/api/scheduleActions")
-$addJobJson = "{`"action`": `"addJobs`", `"scheduleActionItems`": [{`"id`": `"" + $id + "`", `"jobs`": [{`"id`": `"" + $easeRSJJobName + "`", `"instanceProperties`": [{ `"name`": `"" + $instancePropertyName + "`", `"value`": `"" + $SourceFile + "`" }],`"instanceProperties`": [{ `"name`": `"" + $instancePropertyName2 + "`", `"value`": `"" + $DestinationFile + "`" }], `"frequency`": `"" + $Frequency + "`"}]}], `"reason`": `"" + $Reason + "`"}"
+$addJobJson = "{`"action`": `"addJobs`", `"scheduleActionItems`": [{`"id`": `"" + $id + "`", `"jobs`": [{`"id`": `"" + $easeCOPYJobName + "`", `"instanceProperties`": [{ `"name`": `"" + $instancePropertyName + "`", `"value`": `"" + $FileName + "`" }], `"frequency`": `"" + $Frequency + "`"}]}], `"reason`": `"" + $Reason + "`"}"
 try
 {
     $scheduleAction = Invoke-RestMethod -Method Post -Uri $addJobUri -Headers $authHeader -Body $addJobJson -ContentType "application/json" -ErrorVariable RespErr
@@ -243,7 +234,7 @@ Write-Host ""
 #-------------------------------------------------------------------------
 # Successfully added job. Now fetch the final result of the job execution.
 #-------------------------------------------------------------------------
-Write-Host ("Successfully added job '" + $easeRSJJobName + "' to schedule '" + $id + "'.")
+Write-Host ("Successfully added job '" + $easeCOPYJobName + "' to schedule '" + $id + "'.")
 Write-Host ("Waiting until the job finishes running...")
 
 $dailyJobsUri = ($EaseApiUrl + "/api/dailyJobs?ids=" + $scheduleAction.scheduleActionItems[0].jobs[0].id)
@@ -275,7 +266,7 @@ While (($dailyJob.status.id -ne 900) -and ($dailyJob.status.id -ne 910))
 #-------
 if ($dailyJob.status.id -eq 910)
 {
-    Write-Host ("Job '" + $easeRSJJobName + "' failed: " + $dailyJob.terminationDescription)
+    Write-Host ("Job '" + $easeCOPYJobName + "' failed: " + $dailyJob.terminationDescription)
 	$errorCodeDefinition = $dailyJob.terminationDescription
 	$errorCodeDefinition = $errorCodeDefinition.SubString(1,9)
     Exit $errorCodeDefinition
