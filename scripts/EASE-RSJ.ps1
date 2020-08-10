@@ -238,6 +238,7 @@ Write-Host ("Successfully added job '" + $easeRSJJobName + "' to schedule '" + $
 Write-Host ("Waiting until the job finishes running...")
 
 $dailyJobsUri = ($EaseApiUrl + "/api/dailyJobs?ids=" + $scheduleAction.scheduleActionItems[0].jobs[0].id)
+$retryCount = 0
 Do
 {
     try
@@ -250,13 +251,18 @@ Do
             Exit 651
         }
         $dailyJob = $dailyJobs[0]
+        $retryCount = 0
     }
     catch
     {
+        $retryCount = $retryCount + 1
         Write-Host ("Unable to fetch status of job execution. URI: " + $dailyJobsUri)
         Write-Host ("StatusCode: " + $_.Exception.Response.StatusCode.value__)
         Write-Host ("StatusDescription: " + $_.Exception.Response.StatusDescription)
-        Exit $_.Exception.Response.StatusCode.value__
+        if ($retryCount -ge 5)
+        {
+          Exit $_.Exception.Response.StatusCode.value__
+        }
     }
 }
 While (($dailyJob.status.id -ne 900) -and ($dailyJob.status.id -ne 910))
