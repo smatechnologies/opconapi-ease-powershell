@@ -246,19 +246,6 @@ Write-Host ("Successfully added job '" + $easePROMPTJobName + "' to schedule '" 
 Write-Host ("Waiting until the job finishes running...")
 
 $dailyJobsUri = ($EaseApiUrl + "/api/dailyJobs?ids=" + $scheduleAction.scheduleActionItems[0].jobs[0].id)
-Do
-{
-    try
-    {
-        Start-Sleep -Seconds 5
-        $dailyJobs = Invoke-RestMethod -Method Get -Uri $dailyJobsUri -Headers $authHeader
-        if ($dailyJobs.Count -eq 0)
-        {
-            Write-Host ("Added job is not found. URI: " + $dailyJobsUri)
-            Exit 651
-        }
-        $dailyJob = $dailyJobs[0]
-$dailyJobsUri = ($EaseApiUrl + "/api/dailyJobs?ids=" + $scheduleAction.scheduleActionItems[0].jobs[0].id)
 $retryCount = 0
 Do
 {

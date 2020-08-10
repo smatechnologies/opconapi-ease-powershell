@@ -46,7 +46,7 @@ if(!($ScheduleName))
 #---------------------------------------------------------
 # Verify Dynamic Parameters were submitted in the command
 #---------------------------------------------------------
-if(!($$Action))
+if(!($Action))
     { 
         Write-Host "A required parameter is missing."  
 		Write-Host "You must include the -$Action parameter for this script to work."

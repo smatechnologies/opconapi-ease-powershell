@@ -50,9 +50,7 @@ if(!($ReportName))
 #---------------------------------------------------------
 # Define Variables
 #---------------------------------------------------------
-$easeSEQJobName = "SEQ"
 $easeCOPYJobName = "COPY-RPT-OUT"
-$easeFTPJobName = "RUN-FTP-OUT"
 $frequency = "OnRequest"
 $instancePropertyName = "OUTFILE"
 reason = "EASE Agent"
