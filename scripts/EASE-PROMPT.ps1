@@ -73,6 +73,8 @@ $instancePropertyName2 = "PROMPT"
 $instancePropertyName3 = "RESPONSE"
 $reason = "EASE Agent"
 $tls = "Tls12"
+$retryDuration = "10"
+$retryAttempts = "10"
 
 #------------------------------------------------
 # Specify the TLS Version
@@ -259,7 +261,7 @@ Do
 {
     try
     {
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds $retryDuration
         $dailyJobs = Invoke-RestMethod -Method Get -Uri $dailyJobsUri -Headers $authHeader
         if ($dailyJobs.Count -eq 0)
         {
@@ -275,7 +277,7 @@ Do
         Write-Host ("Unable to fetch status of job execution. URI: " + $dailyJobsUri)
         Write-Host ("StatusCode: " + $_.Exception.Response.StatusCode.value__)
         Write-Host ("StatusDescription: " + $_.Exception.Response.StatusDescription)
-        if ($retryCount -ge 5)
+        if ($retryCount -ge $retryAttempts)
         {
           Exit $_.Exception.Response.StatusCode.value__
         }
